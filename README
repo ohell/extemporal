@@ -25,4 +25,7 @@ XOR, though fast and easy to implement, has a weakness: Fc(Fc(m) = m, i.e. Gc = 
 
 See http://people.csail.mit.edu/~rivest/ShamirRivestAdleman-MentalPoker.pdf for details of SRA. Here it has been implemented as a per-word modular exponentiation, Fc(m) = {mi^ci mod N}, mi and ci are the ith words of messages and key. This would be susceptible to discrete logarithm problems, but the attacker never has the key in this message exchange scheme. The word size used is 2 bytes, N = 2^16 (i.e. Character.MAX + 1). This is mainly for reasons of preserving sanity - 2 byte char is the only unsigned integral type in Java.
 
+The test project contains simple test implementation, one that exchanges messages between 2 pretend endpoints, and one that exchanges emails between 2 accounts you can specify.
+To try it, run the Main function in the extempolar.jar found in the bin/ directory. You will need to specify your email accounts on the command line in order to run the email tests. See Main.java in test sources for the required options. They are complex, unless you plan to use GMail accounts.
+
 Question, comments to amit@lipik.in
