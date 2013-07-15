@@ -1,0 +1,28 @@
+extemporal - a scheme to enable provably secure message exchanges.
+
+This project consists of a library, extemporal, that implements a scheme for securely exchanging messages over a channel compromised by cryptographically adept eavesdroppers and/or quick acting impersonators.
+
+The central idea behind the scheme is to use one time pads, but never exchange the pads with the message recipients. Instead, the ciphers are decrypted by the encrypting party. This is achieved via successive encryption by both the sender and the recipient and the doubly encrypted messages being propagated back to the originator for decryption and the final transmission.
+
+Here is the scheme:
+ - Alice has a message for Bob. Message data is encrypted by Alice and sent to Bob (message).
+ - Bob receives the encrypted message, and encrypts it again, before passing it back to Alice (acknowledgement).
+ - Upon receiving the doubly encrypted acknowledgement, Alice authenticates the sender, partially decrypts the received data, and sends it to Bob (confirmation).
+ - Bob receives the confirmation, authenticates the sender and decrypts the data to access the contents of the message in plaintext.
+
+The randomly generated keys never leave Alice and Bob's respective possession, so an eavesdropper hasn't got anything to crack. Man-in-the-middle attack is a possibility, but only if the the attacker is able to impersonate Alice and Bob, and first completes the exchange with Bob and then exchanges the decrypted message with Alice.
+
+We guard against this by verifying a shared secret at both ends, to authenticate the parties. The insight is that the attacker has to complete the exchanges with Alice and Bob in sequence. So, we securely hash the shared secret with the times at which the message and its reply were generated. This is now secure, because attacker can't generate the secure hash without the secret, and can't use a previously observed hash because all the transmitted hashes are salted with message times, and recipients check that the times included in the message are after the keys were generated.
+
+The encryption scheme is pseudo-random one time pad. The cipher length is always the same as the message length (very short messages are padded, though).
+
+The library contains two algorithms: XOR and SRA. New algorithms can be implemented by extending EncryptionAlgorithm, but they need to to meet the criteria that, for a given algorithm F and keys c and e:
+- Gc(Fc(m)) = m, i.e. a decryption algorithm G should exist,
+- Fc(m) != Fc(n), i.e. F and G should be one to one,
+- Fe(Fc(m)) = Fc(Fe(m)) i.e. process is symmetric w.r.t successive encryption.
+
+XOR, though fast and easy to implement, has a weakness: Fc(Fc(m) = m, i.e. Gc = Fc. This is an invitation to MITM attacks.
+
+See http://people.csail.mit.edu/~rivest/ShamirRivestAdleman-MentalPoker.pdf for details of SRA. Here it has been implemented as a per-word modular exponentiation, Fc(m) = {mi^ci mod N}, mi and ci are the ith words of messages and key. This would be susceptible to discrete logarithm problems, but the attacker never has the key in this message exchange scheme. The word size used is 2 bytes, N = 2^16 (i.e. Character.MAX + 1). This is mainly for reasons of preserving sanity - 2 byte char is the only unsigned integral type in Java.
+
+Question, comments to amit@lipik.in

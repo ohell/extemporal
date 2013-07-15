@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="/test/src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/extemporal"/>
+	<classpathentry kind="lib" path="/test/libs/javax.mail.jar"/>
+	<classpathentry kind="lib" path="/test/libs/asg.cliche-110413.jar"/>
+	<classpathentry kind="lib" path="/test/libs/commons-cli-1.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

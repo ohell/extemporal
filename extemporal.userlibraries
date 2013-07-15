@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eclipse-userlibraries>
+  <library name="Utilitites">
+    <archive path="C:/DevLibraries/Java-utils/bin/ejml-0.22.jar" />
+    <archive path="C:/DevLibraries/Java-utils/bin/guava-14.0.1.jar" />
+    <archive path="C:/DevLibraries/Java-utils/bin/commons-codec-1.7.jar" />
+    <archive path="C:/DevLibraries/Java-utils/bin/commons-lang3-3.1.jar" />
+  </library>
+</eclipse-userlibraries>
+
