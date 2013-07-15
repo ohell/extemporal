@@ -12,18 +12,18 @@ Here is the scheme:
 
 The randomly generated keys never leave Alice and Bob's respective possession, so an eavesdropper hasn't got anything to crack. Man-in-the-middle attack is a possibility, but only if the the attacker is able to impersonate Alice and Bob, and first completes the exchange with Bob and then exchanges the decrypted message with Alice.
 
-We guard against this by verifying a shared secret at both ends, to authenticate the parties. The insight is that the attacker has to complete the exchanges with Alice and Bob in sequence. So, we securely hash the shared secret with the times at which the message and its reply were generated. This is now secure, because attacker can't generate the secure hash without the secret, and can't use a previously observed hash because all the transmitted hashes are salted with message times, and recipients check that the times included in the message are after the keys were generated.
+We guard against this by optionally verifying a shared secret at both ends, to authenticate the parties. The insight is that the attacker has to complete the exchanges with Alice and Bob in sequence. So, we securely hash the shared secret with the times at which the message and its reply were generated. This is now secure, because attacker can't generate the secure hash without the secret, and can't use a previously observed hash because all the transmitted hashes are salted with message times, and recipients check that the times included in the message are after the keys were generated.
 
 The encryption scheme is pseudo-random one time pad. The cipher length is always the same as the message length (very short messages are padded, though).
 
-The library contains two algorithms: XOR and SRA. New algorithms can be implemented by extending EncryptionAlgorithm, but they need to to meet the criteria that, for a given algorithm F and keys c and e:
+The library contains implementation for two encryption algorithms: XOR and SRA (modular exponentiation). New algorithms can be implemented by extending EncryptionAlgorithm, but they need to to meet the criteria that, for a given algorithm F and keys c and e:
 - Gc(Fc(m)) = m, i.e. a decryption algorithm G should exist,
 - Fc(m) != Fc(n), i.e. F and G should be one to one,
 - Fe(Fc(m)) = Fc(Fe(m)) i.e. process is symmetric w.r.t successive encryption.
 
-XOR, though fast and easy to implement, has a weakness: Fc(Fc(m) = m, i.e. Gc = Fc. This is an invitation to MITM attacks.
+XOR, though fast and easy to implement, has a fatal weakness: Fc(Fc(m)) = m, i.e. Gc = Fc. This makes it very simple for an eavesdropper: she just has to XOR the three messages described above to retrieve the plaintext. For this reason, XOR should be used only for testing/debugging prurposes. Modular operations are much more preferrable because encrypting a word with different keys can lead to the same cipher, making it harder to reverse without knowing the key used.
 
-See http://people.csail.mit.edu/~rivest/ShamirRivestAdleman-MentalPoker.pdf for details of SRA. Here it has been implemented as a per-word modular exponentiation, Fc(m) = {mi^ci mod N}, mi and ci are the ith words of messages and key. This would be susceptible to discrete logarithm problems, but the attacker never has the key in this message exchange scheme. The word size used is 2 bytes, N = 2^16 (i.e. Character.MAX + 1). This is mainly for reasons of preserving sanity - 2 byte char is the only unsigned integral type in Java.
+See http://people.csail.mit.edu/~rivest/ShamirRivestAdleman-MentalPoker.pdf for details of SRA. Here it has been implemented as a per-word modular exponentiation, Fc(m) = {mi^ci mod N}, mi and ci are the ith words of messages and key. This would be normally susceptible to discrete logarithm problems, but the attacker never has the key in this message exchange scheme. The word size used is 2 bytes, N = 2^16 (i.e. Character.MAX + 1). This is mainly for reasons of preserving sanity - 2 byte char is the only unsigned integral type in Java.
 
 The test project contains simple test implementation, one that exchanges messages between 2 pretend endpoints, and one that exchanges emails between 2 accounts you can specify.
 To try it, run the Main function in the extempolar.jar found in the bin/ directory. You will need to specify your email accounts on the command line in order to run the email tests. See Main.java in test sources for the required options. They are complex, unless you plan to use GMail accounts.
