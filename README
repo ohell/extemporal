@@ -4,17 +4,17 @@ This project consists of a library, extemporal, that implements a scheme for sec
 
 The central idea behind the scheme is to use one time pads, but never exchange the pads with the message recipients. Instead, the ciphers are decrypted by the encrypting party. This is achieved via successive encryption by both the sender and the recipient and the doubly encrypted messages being propagated back to the originator for decryption and the final transmission.
 
-Here is the scheme:
+The scheme folows this protocol:
  - Alice has a message for Bob. Message data is encrypted by Alice and sent to Bob (message).
  - Bob receives the encrypted message, and encrypts it again, before passing it back to Alice (acknowledgement).
  - Upon receiving the doubly encrypted acknowledgement, Alice authenticates the sender, partially decrypts the received data, and sends it to Bob (confirmation).
  - Bob receives the confirmation, authenticates the sender and decrypts the data to access the contents of the message in plaintext.
 
 The randomly generated keys never leave Alice and Bob's respective possession, and encryption is not algorithmic, so the message exchange preserves the non-informative cipher produced by one time pads.
-There is a a weakness, however. The 2nd message (acknowledgement) is the cipher-text for the first and third messages. i.e. an eavesdropper who observes the whole exchange can hope to recover the corresponding key (OTP) by comparing the doubly exncrypted acknowledgement to either of the 2 other messages, and applying it to the remaining message to recover the plaintext. This leads to an additional constraint upon the encrytion operation: the encryption key should not be deducible from knowing the message and the cipher.
+
+There is a a weakness, however. The 2nd message (acknowledgement) is the cipher-text for the first and third messages. i.e. an eavesdropper who observes the whole exchange can hope to recover the corresponding key (OTP) by comparing the doubly encrypted acknowledgement to either of the 2 other messages, and applying it to the remaining message to recover the plaintext. This can be prevented if we impose an additional constraint upon the encrytion operation: the encryption key should not be deducible from knowing the message and the cipher. All the requirements for the cipher are listed below.
 
 Man-in-the-middle attack is a possibility, but only if the the attacker is able to impersonate Alice and Bob, and first completes the exchange with Bob and then exchanges the decrypted message with Alice.
-
 We guard against this by verifying a shared secret at both ends, to authenticate the parties. The insight is that the attacker has to complete the exchanges with Alice and Bob in sequence. So, we securely hash the shared secret with the times at which the message and its reply were generated. This is now secure, because attacker can't generate the secure hash without the secret, and can't use a previously observed hash because all the transmitted hashes are salted with message times, and recipients check that the times included in the message are after the keys were generated.
 
 The encryption scheme is pseudo-random one time pad. The cipher length is always the same as the message length (very short messages are padded, though).
